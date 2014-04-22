@@ -26,6 +26,7 @@ import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util._
+import scala.language.higherKinds
 
 trait Cursor[T] {
   /**

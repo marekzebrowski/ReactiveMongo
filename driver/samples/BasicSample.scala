@@ -5,7 +5,7 @@ import play.api.libs.iteratee.Iteratee
 import reactivemongo.api.MongoDriver
 import reactivemongo.bson._
 
-import scala.concurrent.{Future}
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Samples {

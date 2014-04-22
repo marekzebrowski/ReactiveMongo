@@ -16,8 +16,6 @@
 package reactivemongo.core.commands
 
 import reactivemongo.bson._
-import DefaultBSONHandlers._
-import reactivemongo.core.protocol.Response
 
 /** Drop a database. */
 class DropDatabase() extends Command[Boolean] {

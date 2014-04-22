@@ -2,6 +2,7 @@ object Common {
   import scala.concurrent._
   import scala.concurrent.duration._
   import reactivemongo.api._
+  import scala.language.postfixOps
 
   implicit val ec = ExecutionContext.Implicits.global
 

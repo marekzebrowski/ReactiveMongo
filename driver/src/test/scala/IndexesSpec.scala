@@ -94,7 +94,7 @@ class IndexesSpec extends Specification with Tags {
       } catch {
         case e: DatabaseException =>
           e.code mustEqual Some(16572) // MongoError['Can't extract geo keys from object, malformed geometry?' (code = 16572)]
-        case e =>
+        case e: Throwable =>
           e.printStackTrace()
           throw e
       }

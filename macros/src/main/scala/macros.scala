@@ -57,8 +57,9 @@ private object MacroImpl {
       val writer = unionTypes map { types =>
         val cases = types map { typ =>
           val pattern = Literal(Constant(typ.typeSymbol.fullName)) //todo
-        val body = readBodyFromImplicit(typ)
-          CaseDef(pattern, body)
+          val body = readBodyFromImplicit(typ)
+          //CaseDef(pattern, body)
+          CaseDef(pattern, EmptyTree, body)
         }
         val className = c.parse("""document.getAs[String]("className").get""")
         Match(className, cases)
@@ -77,9 +78,10 @@ private object MacroImpl {
         val cases = types map { typ =>
           val pattern = Bind(newTermName("document"), Typed(Ident(nme.WILDCARD), TypeTree(typ)))
           val body = writeBodyFromImplicit(typ)
-          CaseDef(pattern, body)
+          //CaseDef(pattern, body)
+          CaseDef(pattern, EmptyTree, body)
         }
-        Match(Ident("document"), cases)
+        Match(Ident(newTermName("document")), cases)
       } getOrElse writeBodyConstruct(A)
 
       val result = c.Expr[BSONDocument](writer)
@@ -93,7 +95,7 @@ private object MacroImpl {
     private def readBodyFromImplicit(A: c.Type) = {
       val reader = c.inferImplicitValue(appliedType(readerType, List(A)))
       if(! reader.isEmpty)
-        Apply(Select(reader, "read"), List(Ident("document")))
+        Apply(Select(reader, newTermName("read")), List(Ident(newTermName("document"))))
       else
         readBodyConstruct(A)
     }
@@ -126,7 +128,7 @@ private object MacroImpl {
 
           val getter = Apply(
             TypeApply(
-              Select(Ident("document"), "getAsTry"),
+              Select(Ident(newTermName("document")), newTermName("getAsTry")),
               List(TypeTree(typ))
 
             ),
@@ -134,24 +136,24 @@ private object MacroImpl {
           )
 
           if (optTyp.isDefined)
-            Select(getter, "toOption")
+            Select(getter, newTermName("toOption"))
           else
-            Select(getter, "get")
+            Select(getter, newTermName("get"))
       }
 
-      val constructorTree = Select(Ident(companion.name.toString), "apply")
+      val constructorTree = Select(Ident(newTermName(companion.name.toString)), newTermName("apply"))
       Apply(constructorTree, values)
     }
 
     private def writeBodyFromImplicit(A: c.Type) = {
       val writer = c.inferImplicitValue(appliedType(writerType, List(A)))
       if(! writer.isEmpty) {
-        val doc = Apply(Select(writer, "write"), List(Ident("document")))
+        val doc = Apply(Select(writer, newTermName("write")), List(Ident(newTermName("document"))))
         classNameTree(A) map { className =>
           val nameE = c.Expr[(String, BSONString)](className)
           val docE = c.Expr[BSONDocument](doc)
           reify{
-            docE.splice ++ BSONDocument(Seq((nameE.splice)))
+            docE.splice ++ BSONDocument(Seq(nameE.splice))
           }.tree
         } getOrElse doc
       } else
@@ -168,7 +170,7 @@ private object MacroImpl {
     private def writeBodyConstructSingleton(A: c.Type): c.Tree = {
       val expr =classNameTree(A) map { className =>
         val nameE = c.Expr[(String, BSONString)](className)
-        reify{ BSONDocument(Seq((nameE.splice))) }
+        reify{ BSONDocument(Seq(nameE.splice)) }
       } getOrElse reify{ BSONDocument.empty }
       expr.tree
     }
@@ -185,8 +187,8 @@ private object MacroImpl {
           val neededType = appliedType(writerType, List(typ))
           val writer = c.inferImplicitValue(neededType)
           if (writer.isEmpty) c.abort(c.enclosingPosition, s"Implicit $typ for '$param' not found")
-          val tuple_i = if (types.length == 1) tuple else Select(tuple, "_" + (i + 1))
-          val bs_value = c.Expr[BSONValue](Apply(Select(writer, "write"), List(tuple_i)))
+          val tuple_i = if (types.length == 1) tuple else Select(tuple, newTermName("_" + (i + 1)))
+          val bs_value = c.Expr[BSONValue](Apply(Select(writer, newTermName("write")), List(tuple_i)))
           val name = c.literal(paramName(param))
           reify(
             (name.splice, bs_value.splice): (String, BSONValue)
@@ -200,13 +202,13 @@ private object MacroImpl {
           val neededType = appliedType(writerType, List(typ))
           val writer = c.inferImplicitValue(neededType)
           if (writer.isEmpty) c.abort(c.enclosingPosition, s"Implicit $typ for '$param' not found")
-          val tuple_i= if (types.length == 1) tuple else Select(tuple, "_" + (i + 1))
-          val buf = Ident("buf")
-          val bs_value = c.Expr[BSONValue](Apply(Select(writer, "write"), List(Select(tuple_i, "get"))))
+          val tuple_i= if (types.length == 1) tuple else Select(tuple, newTermName("_" + (i + 1)))
+          val buf = Ident(newTermName("buf"))
+          val bs_value = c.Expr[BSONValue](Apply(Select(writer, newTermName("write")), List(Select(tuple_i, newTermName("get")))))
           val name = c.literal(paramName(param))
           If(
-            Select(tuple_i, "isDefined"),
-            Apply(Select(Ident("buf"), "$plus$colon$eq"), List(reify((name.splice,bs_value.splice)).tree)),
+            Select(tuple_i, newTermName("isDefined")),
+            Apply(Select(Ident(newTermName("buf")), newTermName("$plus$colon$eq")), List(reify((name.splice,bs_value.splice)).tree)),
             EmptyTree
           )
         }
@@ -221,13 +223,15 @@ private object MacroImpl {
 
       val writer = if(optional.length == 0) List(mkBSONdoc) else withAppends
 
-      val unapplyTree = Select(Ident(companion(A).name.toString), "unapply")
+      val unapplyTree = Select(Ident(newTermName(companion(A).name.toString)), newTermName("unapply"))
       val document = Ident(newTermName("document"))
-      val invokeUnapply = Select(Apply(unapplyTree, List(document)), "get")
+      val invokeUnapply = Select(Apply(unapplyTree, List(document)), newTermName("get"))
       val tupleDef = ValDef(Modifiers(), newTermName("tuple"), TypeTree(), invokeUnapply)
 
       if(values.length + appends.length > 0){
-        Block( (tupleDef :: writer): _*)
+        //Block( (tupleDef :: writer): _*)
+        val block = tupleDef :: writer
+        Block(block.init, block.last)
       } else {
         writer.head
       }
@@ -313,7 +317,7 @@ private object MacroImpl {
     }
 
     private def bsonDocPath: c.universe.Select = {
-      Select(Select(Ident(newTermName("reactivemongo")), "bson"), "BSONDocument")
+      Select(Select(Ident(newTermName("reactivemongo")), newTermName("bson")), newTermName("BSONDocument"))
     }
 
     private def paramName(param: c.Symbol): String = {

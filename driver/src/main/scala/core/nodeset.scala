@@ -1,8 +1,6 @@
 package reactivemongo.core.nodeset
 
-import reactivemongo.core.protocol.Request
 import akka.actor.ActorRef
-import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
 import java.util.concurrent.{ Executor, Executors }
 import reactivemongo.utils.LazyLogger
@@ -12,6 +10,7 @@ import org.jboss.netty.channel.{ Channel, ChannelPipeline, Channels }
 import reactivemongo.core.protocol._
 import reactivemongo.api.ReadPreference
 import reactivemongo.bson._
+import scala.language.higherKinds
 
 package object utils {
   def updateFirst[A, M[T] <: Iterable[T]](coll: M[A])(ƒ: A => Option[A])(implicit cbf: CanBuildFrom[M[_], A, M[A]]): M[A] = {

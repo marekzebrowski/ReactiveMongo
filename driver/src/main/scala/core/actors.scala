@@ -26,8 +26,7 @@ import scala.concurrent.{ Future, Promise }
 import scala.util.{ Failure, Success, Try }
 import reactivemongo.core.nodeset._
 import java.net.InetSocketAddress
-import reactivemongo.api.ReadPreference
-
+import scala.language.postfixOps
 // messages
 
 /**

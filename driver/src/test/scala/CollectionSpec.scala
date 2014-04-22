@@ -1,8 +1,7 @@
-import reactivemongo.api._
 import reactivemongo.bson._
 import reactivemongo.core.commands.Count
 import scala.concurrent._
-import scala.util.{Try, Success, Failure}
+import scala.util.Success
 
 import org.specs2.mutable._
 

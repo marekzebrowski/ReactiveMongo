@@ -1,12 +1,8 @@
 import org.specs2.mutable._
 import play.api.libs.iteratee.Enumerator
-import reactivemongo.api._
-import reactivemongo.api.gridfs.{ReadFile, DefaultFileToSave, GridFS}
-import reactivemongo.api.gridfs.Implicits._
+import reactivemongo.api.gridfs.{DefaultFileToSave, GridFS}
 import reactivemongo.bson._
 import scala.concurrent._
-import reactivemongo.api.gridfs
-import scala.concurrent.duration._
 
 class GridfsSpec extends Specification {
   import Common._

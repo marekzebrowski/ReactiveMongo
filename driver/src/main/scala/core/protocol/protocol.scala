@@ -18,9 +18,7 @@ package reactivemongo.core.protocol
 import akka.actor.ActorRef
 import java.nio.ByteOrder
 import org.jboss.netty.buffer._
-import org.jboss.netty.bootstrap._
 import org.jboss.netty.channel._
-import org.jboss.netty.channel.socket.nio._
 import org.jboss.netty.handler.codec.oneone._
 import org.jboss.netty.handler.codec.frame.FrameDecoder
 import reactivemongo.core.actors.{ ChannelConnected, ChannelClosed, ChannelDisconnected }
@@ -338,7 +336,6 @@ private[reactivemongo] class ResponseFrameDecoder extends FrameDecoder {
 }
 
 private[reactivemongo] class ResponseDecoder extends OneToOneDecoder {
-  import java.net.InetSocketAddress
 
   def decode(ctx: ChannelHandlerContext, channel: Channel, obj: Object) = {
     val buffer = obj.asInstanceOf[ChannelBuffer]

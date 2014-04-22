@@ -16,7 +16,8 @@
 package reactivemongo.bson
 
 import scala.collection.generic.CanBuildFrom
-import scala.util.{ Failure, Success, Try }
+import scala.util.Try
+import scala.language.higherKinds
 
 /**
  * A reader that produces an instance of `T` from a subtype of [[BSONValue]].

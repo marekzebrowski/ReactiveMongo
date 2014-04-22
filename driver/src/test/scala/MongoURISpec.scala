@@ -1,4 +1,4 @@
-import scala.util.{ Failure, Success, Try }
+import scala.util.Success
 
 import org.specs2.mutable._
 

@@ -17,6 +17,7 @@ package reactivemongo.utils
 
 import scala.concurrent._
 import scala.concurrent.duration._
+import scala.language.implicitConversions
 
 object `package` {
   /** Concats two array - fast way */
@@ -69,7 +70,7 @@ object EitherMappableFuture {
 }
 
 object ExtendedFutures {
-  import akka.actor.{ ActorSystem, Scheduler }
+  import akka.actor.ActorSystem
 
   // better way to this?
   def DelayedFuture(millis: Long, system: ActorSystem): Future[Unit] = {

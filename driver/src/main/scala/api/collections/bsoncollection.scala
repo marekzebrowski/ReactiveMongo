@@ -20,9 +20,7 @@ import reactivemongo.api.collections._
 import reactivemongo.bson._
 import reactivemongo.bson.buffer._
 import reactivemongo.core.commands.{ GetLastError, LastError }
-import reactivemongo.core.netty._
 import scala.concurrent.{ ExecutionContext, Future }
-import org.jboss.netty.buffer.ChannelBuffer
 
 /**
  * The default [[Collection]] implementation.
@@ -161,7 +159,6 @@ case class BSONQueryBuilder(
     commentString: Option[String] = None,
     options: QueryOpts = QueryOpts()) extends GenericQueryBuilder[BSONDocument, BSONDocumentReader, BSONDocumentWriter] with BSONConverters with BSONGenericHandlers {
   import reactivemongo.bson._
-  import reactivemongo.bson.DefaultBSONHandlers._
   import reactivemongo.utils.option
 
   type Self = BSONQueryBuilder

@@ -15,17 +15,12 @@
  */
 package reactivemongo.api
 
-import akka.actor.{ ActorRef, ActorSystem, PoisonPill, Props }
-import org.jboss.netty.buffer.ChannelBuffer
-import play.api.libs.iteratee._
-import reactivemongo.api.indexes._
+import akka.actor.{ ActorRef, ActorSystem, Props }
 import reactivemongo.core.actors._
 import reactivemongo.core.nodeset.Authenticate
-import reactivemongo.bson._
 import reactivemongo.core.protocol._
-import reactivemongo.core.commands.{ Command, GetLastError, LastError, SuccessfulAuthentication }
+import reactivemongo.core.commands.SuccessfulAuthentication
 import reactivemongo.utils.LazyLogger
-import reactivemongo.utils.EitherMappableFuture._
 import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.concurrent.duration._
 import scala.util.{ Try, Failure, Success }

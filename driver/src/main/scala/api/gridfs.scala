@@ -26,6 +26,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 import reactivemongo.core.netty.ChannelBufferWritableBuffer
 import reactivemongo.api.collections.GenericCollectionProducer
 import reactivemongo.api.collections.GenericCollection
+import scala.language.higherKinds
 
 object `package` {
   private[gridfs] val logger = LazyLogger("reactivemongo.api.gridfs")
@@ -193,7 +194,6 @@ class GridFS[Structure, Reader[_], Writer[_]](db: DB with DBMetaCommands, prefix
         }
       }
       def finish(): Future[ReadFile[Id]] = {
-        import DefaultBSONHandlers._
         logger.debug("writing last chunk (n=" + n + ")!")
         val uploadDate = file.uploadDate.getOrElse(System.currentTimeMillis)
         writeChunk(n, previous).flatMap { f =>
@@ -213,7 +213,6 @@ class GridFS[Structure, Reader[_], Writer[_]](db: DB with DBMetaCommands, prefix
       def writeChunk(n: Int, array: Array[Byte]) = {
         logger.debug("writing chunk " + n)
         val bson = {
-          import DefaultBSONHandlers._
           BSONDocument(
             "files_id" -> file.id.asInstanceOf[BSONValue],
             "n" -> BSONInteger(n),

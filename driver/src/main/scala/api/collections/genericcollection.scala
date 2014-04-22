@@ -16,15 +16,8 @@
 package reactivemongo.api.collections
 
 import reactivemongo.bson.buffer.ReadableBuffer
-import reactivemongo.bson.BSONValue
-import reactivemongo.bson.buffer.DefaultBufferHandler
-import reactivemongo.bson.BSONDocument
 import reactivemongo.core.protocol._
 import reactivemongo.core.netty._
-import reactivemongo.bson.BSONDocumentWriter
-import reactivemongo.bson.BSONDocumentReader
-import reactivemongo.bson.buffer.ArrayBSONBuffer
-import reactivemongo.core.commands.GetLastError
 import reactivemongo.utils.EitherMappableFuture._
 import play.api.libs.iteratee._
 import scala.concurrent.{ ExecutionContext, Future }
@@ -35,6 +28,7 @@ import scala.util._
 import reactivemongo.bson.buffer.WritableBuffer
 import reactivemongo.core.commands.GetLastError
 import reactivemongo.api._
+import scala.language.higherKinds
 
 trait BufferWriter[-T] {
   def write[B <: WritableBuffer](t: T, buffer: B): B

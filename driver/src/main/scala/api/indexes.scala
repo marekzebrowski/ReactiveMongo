@@ -20,7 +20,6 @@ import reactivemongo.bson._
 import DefaultBSONHandlers._
 import reactivemongo.core.commands.{ DeleteIndex, LastError }
 import reactivemongo.utils.option
-import reactivemongo.core.netty._
 import scala.concurrent.{ Future, ExecutionContext }
 
 /** Type of Index */
@@ -255,7 +254,6 @@ object IndexesManager {
   }
 
   implicit object NSIndexWriter extends BSONDocumentWriter[NSIndex] {
-    import org.jboss.netty.buffer._
     def write(nsIndex: NSIndex): BSONDocument = {
       if (nsIndex.index.key.isEmpty)
         throw new RuntimeException("the key should not be empty!")
@@ -264,7 +262,6 @@ object IndexesManager {
   }
 
   implicit object NSIndexReader extends BSONDocumentReader[NSIndex] {
-    import org.jboss.netty.buffer._
     def read(doc: BSONDocument): NSIndex = {
       val options = doc.elements.filterNot { element =>
         element._1 == "ns" || element._1 == "key" || element._1 == "name" || element._1 == "unique" ||

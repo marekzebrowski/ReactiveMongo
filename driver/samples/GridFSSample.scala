@@ -6,7 +6,6 @@ import play.api.libs.iteratee._
 
 import reactivemongo.api.MongoDriver
 import reactivemongo.api.gridfs._
-import reactivemongo.api.gridfs.Implicits._
 import reactivemongo.bson._
 
 import scala.concurrent.ExecutionContext.Implicits.global
