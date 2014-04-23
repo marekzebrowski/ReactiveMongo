@@ -54,16 +54,18 @@ private object MacroImpl {
     import c.universe._
 
     lazy val readBody: c.Expr[A] = {
-      val writer = unionTypes map { types =>
-        val cases = types map { typ =>
-          val pattern = Literal(Constant(typ.typeSymbol.fullName)) //todo
-          val body = readBodyFromImplicit(typ)
-          //CaseDef(pattern, body)
-          CaseDef(pattern, EmptyTree, body)
-        }
-        val className = c.parse("""document.getAs[String]("className").get""")
-        Match(className, cases)
-      } getOrElse readBodyConstruct(A)
+      val writer = unionTypes.fold(readBodyConstruct(A))({
+        types =>
+          val cases = types map {
+            typ =>
+              val pattern = Literal(Constant(typ.typeSymbol.fullName)) //todo
+            val body = readBodyFromImplicit(typ)
+              //CaseDef(pattern, body)
+              CaseDef(pattern, EmptyTree, body)
+          }
+          val className = c.parse( """document.getAs[String]("className").get""")
+          Match(className, cases)
+      })
 
       val result = c.Expr[A](writer)
 
@@ -74,15 +76,17 @@ private object MacroImpl {
     }
 
     lazy val writeBody: c.Expr[BSONDocument] = {
-      val writer = unionTypes map { types =>
-        val cases = types map { typ =>
-          val pattern = Bind(newTermName("document"), Typed(Ident(nme.WILDCARD), TypeTree(typ)))
-          val body = writeBodyFromImplicit(typ)
-          //CaseDef(pattern, body)
-          CaseDef(pattern, EmptyTree, body)
-        }
-        Match(Ident(newTermName("document")), cases)
-      } getOrElse writeBodyConstruct(A)
+      val writer = unionTypes.fold(writeBodyConstruct(A))({
+        types =>
+          val cases = types map {
+            typ =>
+              val pattern = Bind(newTermName("document"), Typed(Ident(nme.WILDCARD), TypeTree(typ)))
+              val body = writeBodyFromImplicit(typ)
+              //CaseDef(pattern, body)
+              CaseDef(pattern, EmptyTree, body)
+          }
+          Match(Ident(newTermName("document")), cases)
+      })
 
       val result = c.Expr[BSONDocument](writer)
 
@@ -364,8 +368,14 @@ private object MacroImpl {
 
       val alternatives = applySymbol.asTerm.alternatives map (_.asMethod)
       val u = unapplyReturnTypes(unapply)
-      val applys = alternatives filter (_.paramss.head.map(_.typeSignature) == u)
-
+      //val applys = alternatives filter (_.paramss.head.map(_.typeSignature) == u)
+      val applys = alternatives filter {
+        alt =>
+          val sig = alt.paramss.head.map(_.typeSignature)
+          sig.size == u.size && sig.zip(u).forall {
+            case (left, right) => left =:= right
+          }
+      }
       val apply = applys.headOption getOrElse c.abort(c.enclosingPosition, "No matching apply/unapply found")
       (apply,unapply)
     }
